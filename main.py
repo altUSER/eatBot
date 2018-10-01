@@ -34,6 +34,22 @@ def geteatlist(conf):
                                         conf.set(str(event.peer_id), 'eat', 'n')
                                         write_msg(event.peer_id, old_v + ' заменено на n')
 
+				if inp[1] == 'list':
+					eat_y = 'Едят:\n'
+					y_count = 0
+					eat_n = '\nНе едят:\n'
+					ncheck = '\nНе отметелись:\n'
+					for id in conf.sections():
+						if conf.get(id, 'eat') == '-':
+							ncheck += conf.get(id, 'name') + '\n'
+						if conf.get(id, 'eat') == 'y':
+							y_count += 1
+							eat_y += conf.get(id, 'name') + '\n'
+						if conf.get(id, 'eat') == 'n':
+							eat_n += conf.get(id, 'name') + '\n'
+
+					write_msg(event.peer_id, eat_y + 'Всего: ' + str(y_count) + '\n' + eat_n + ncheck)
+
 
 				conf.write(conf_file)
 				conf_file.close()
@@ -49,3 +65,4 @@ conf = cp.RawConfigParser()
 conf.read('class.conf') #имя конфиг файла
 
 geteatlist(conf)
+
