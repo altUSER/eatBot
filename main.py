@@ -4,19 +4,12 @@ import vk_api, vk_api.longpoll
 from vk_api.longpoll import VkEventType
 import datetime
 from vars import * #данные для входа
+import ConfigParser as cp
 
-def getname(event): #получение имени чата и пользователя
-	id = event.peer_id
-	if str(id)[0] == '1': #если сообщение из лс
-		usr = vk.method('users.get', {'user_ids':id})
-		outp = usr[0]['first_name'].encode('utf-8') + '_' + usr[0]['last_name'].encode('utf-8')
-	if str(id)[0] == '2': #если сообщение из чата
-		chat = vk.method('messages.getChat', {'chat_id':id - 2000000000})
-		usr = vk.method('users.get', {'user_ids':event.user_id})
-		outp = chat['title'] + ' | ' + usr[0]['first_name'] + '_' + usr[0]['last_name']
-	return outp
+def write_msg(id, s):
+    vk.method('messages.send', {'user_id':id,'message':s})
 
-def geteatlist():
+def geteatlist(conf):
 
 	now = datetime.datetime.now() #переменная для вывода времени
 
@@ -30,16 +23,29 @@ def geteatlist():
 
 			if inp[0] == 'eat':
 
-				if inp[1] == '+':
-					print getname(event) + ' True'
-				if inp[1] == '-':
-					print getname(event) + ' False'
+				conf_file = open('class.conf', 'w') #имя конфиг файла
 
+				if inp[1] == 'y':
+					old_v = conf.get(str(event.peer_id), 'eat')
+					conf.set(str(event.peer_id), 'eat', 'y')
+					write_msg(event.peer_id, old_v + ' заменено на y')
+				if inp[1] == 'n':
+					old_v = conf.get(str(event.peer_id), 'eat')
+                                        conf.set(str(event.peer_id), 'eat', 'n')
+                                        write_msg(event.peer_id, old_v + ' заменено на n')
+
+
+				conf.write(conf_file)
+				conf_file.close()
 
 
 vk = vk_api.VkApi(login = login, password = password) #переменные из vars
+conf = cp.RawConfigParser()
 print('Login...')
 vk.auth()
 print('Done')
 
-geteatlist()
+conf = cp.RawConfigParser()
+conf.read('class.conf') #имя конфиг файла
+
+geteatlist(conf)
