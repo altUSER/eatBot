@@ -5,9 +5,23 @@ from vk_api.longpoll import VkEventType
 import datetime
 from vars import * #данные для входа
 import ConfigParser as cp
+import os
+import time
+
+##настройки
+admin_id = 160946239
 
 def write_msg(id, s):
     vk.method('messages.send', {'user_id':id,'message':s})
+
+def rst(event):
+	if os.path.isdir('log'):
+		fname=str(time.strftime('%Y_%b_%d_%H:%M:%S')) + '.conf'
+		os.system('cp class.conf log/' + fname)
+		write_msg(admin_id, '[AUTO INFO]Произведен сброс по запросу ' + str(event.peer_id) + ', файл сохранен как log/' + fname)
+		return('Произведен сброс, файл сохранен как log/' + fname)
+	else:
+		return('Ошибка! Директория log/ не обнаружена.')
 
 def geteatlist(conf):
 
@@ -49,6 +63,9 @@ def geteatlist(conf):
 							eat_n += conf.get(id, 'name') + '\n'
 
 					write_msg(event.peer_id, eat_y + 'Всего: ' + str(y_count) + '\n' + eat_n + ncheck)
+
+				if inp[1] == 'reset':
+					write_msg(event.peer_id, rst(event))
 
 
 				conf.write(conf_file)
