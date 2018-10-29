@@ -18,7 +18,7 @@ def rst(event):
 	if os.path.isdir('log'):
 		fname=str(time.strftime('%Y_%b_%d_%H:%M:%S')) + '.conf'
 		os.system('cp class.conf log/' + fname)
-		write_msg(admin_id, '[AUTO INFO]Произведен сброс по запросу ' + str(event.peer_id) + ', файл сохранен как log/' + fname)
+		write_msg(admin_id, '[AUTO INFO]Произведен сброс, файл сохранен как log/' + fname)
 		for id in conf.sections():
 			conf.set(str(id), 'eat', '-')
 		return('Произведен сброс, файл сохранен как log/' + fname)
@@ -42,7 +42,7 @@ def geteatlist(conf):
 
 					conf_file = open('class.conf', 'w') #имя конфиг файла
 
-					if inp[1] == 'y':
+					if inp[1] == 'y':	#отметка на акк отправляющего
 						old_v = conf.get(str(event.peer_id), 'eat')
 						conf.set(str(event.peer_id), 'eat', 'y')
 						write_msg(event.peer_id, old_v + ' заменено на y')
@@ -51,7 +51,7 @@ def geteatlist(conf):
 						conf.set(str(event.peer_id), 'eat', 'n')
 						write_msg(event.peer_id, old_v + ' заменено на n')
 
-					if inp[1] == 'list':
+					if inp[1] == 'list': #вывод всех данных
 						eat_y = 'Едят:\n'
 						y_count = 0
 						eat_n = '\nНе едят:\n'
@@ -67,8 +67,22 @@ def geteatlist(conf):
 
 						write_msg(event.peer_id, eat_y + 'Всего: ' + str(y_count) + '\n' + eat_n + ncheck)
 
-					if inp[1] == 'reset':
+					if inp[1] == 'reset': #сброс значений
 						write_msg(event.peer_id, rst(event))
+
+					if inp[1] == 'am': #отметка другого человека
+						num = inp[2]
+						id = conf.sections()[int(num) - 1]
+
+						if inp[3] == 'y':
+							old_v = conf.get(id, 'eat')
+							conf.set(id, 'eat', 'y')
+							write_msg(event.peer_id, old_v + ' заменено на y')
+
+						if inp[3] == 'n':
+							old_v = conf.get(id, 'eat')
+							conf.set(id, 'eat', 'n')
+							write_msg(event.peer_id, old_v + ' заменено на n')
 
 					conf.write(conf_file)
 					conf_file.close()
