@@ -35,23 +35,23 @@ def geteatlist(conf):
 
 		if event.type == VkEventType.MESSAGE_NEW: 
 			msg = event.text
-			inp = msg.split()
+			inp = msg.lower().split()
 
 			if (len(inp) != 0):
-				if (inp[0] == 'eat') or (inp[0] == 'Eat'):
+				if (inp[0] == 'eat'):
 
 					conf_file = open('class.conf', 'w') #имя конфиг файла
 
-					if inp[1] == 'y':	#отметка на акк отправляющего
+					if inp[1] == 'y' and len(inp) == 2:	#отметка на акк отправляющего
 						old_v = conf.get(str(event.peer_id), 'eat')
 						conf.set(str(event.peer_id), 'eat', 'y')
 						write_msg(event.peer_id, old_v + ' заменено на y')
-					if inp[1] == 'n':
+					if inp[1] == 'n' and len(inp) == 2:
 						old_v = conf.get(str(event.peer_id), 'eat')
 						conf.set(str(event.peer_id), 'eat', 'n')
 						write_msg(event.peer_id, old_v + ' заменено на n')
 
-					if inp[1] == 'list': #вывод всех данных
+					if inp[1] == 'list' and len(inp) == 2: #вывод всех данных
 						eat_y = 'Едят:\n'
 						y_count = 0
 						eat_n = '\nНе едят:\n'
@@ -67,10 +67,10 @@ def geteatlist(conf):
 
 						write_msg(event.peer_id, eat_y + 'Всего: ' + str(y_count) + '\n' + eat_n + ncheck)
 
-					if inp[1] == 'reset': #сброс значений
+					if inp[1] == 'reset' and len(inp) == 2: #сброс значений
 						write_msg(event.peer_id, rst(event))
 
-					if inp[1] == 'am': #отметка другого человека
+					if inp[1] == 'am' and len(inp) == 4 and len(conf.sections()) >= int(inp[2]): #отметка другого человека
 						num = inp[2]
 						id = conf.sections()[int(num) - 1]
 
@@ -87,15 +87,22 @@ def geteatlist(conf):
 					conf.write(conf_file)
 					conf_file.close()
 
+while True:
+	try:
+		vk = vk_api.VkApi(login = login, password = password) #переменные из vars
+		conf = cp.RawConfigParser()
+		print('Login...')
+		vk.auth()
+		print('Done')
 
-vk = vk_api.VkApi(login = login, password = password) #переменные из vars
-conf = cp.RawConfigParser()
-print('Login...')
-vk.auth()
-print('Done')
+		conf = cp.RawConfigParser()
+		conf.read('class.conf') #имя конфиг файла
 
-conf = cp.RawConfigParser()
-conf.read('class.conf') #имя конфиг файла
+		geteatlist(conf)
 
-geteatlist(conf)
+	except KeyboardInterrupt:
+		exit()
 
+	except Exception as e:
+		print('Fatal error! ' + str(e) + ' Restart after 10 sec.')
+		time.sleep(10)
