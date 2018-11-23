@@ -42,11 +42,11 @@ def geteatlist(conf):
 
 					conf_file = open('class.conf', 'w') #имя конфиг файла
 
-					if inp[1] == 'y' and len(inp) == 2:	#отметка на акк отправляющего
+					if inp[1] == 'y' and len(inp) == 2 and event.peer_id in conf.sections(): #отметка на акк отправляющего
 						old_v = conf.get(str(event.peer_id), 'eat')
 						conf.set(str(event.peer_id), 'eat', 'y')
 						write_msg(event.peer_id, old_v + ' заменено на y')
-					if inp[1] == 'n' and len(inp) == 2:
+					if inp[1] == 'n' and len(inp) == 2 and event.peer_id in conf.sections():
 						old_v = conf.get(str(event.peer_id), 'eat')
 						conf.set(str(event.peer_id), 'eat', 'n')
 						write_msg(event.peer_id, old_v + ' заменено на n')
@@ -70,19 +70,23 @@ def geteatlist(conf):
 					if inp[1] == 'reset' and len(inp) == 2: #сброс значений
 						write_msg(event.peer_id, rst(event))
 
-					if inp[1] == 'am' and len(inp) == 4 and len(conf.sections()) >= int(inp[2]): #отметка другого человека
-						num = inp[2]
-						id = conf.sections()[int(num) - 1]
+					if inp[1] == 'am' and len(inp) == 4: #отметка другого человека
+						try:
+							num = int(inp[2])
+							if num > 0 and num < 25:
+								id = conf.sections()[num - 1]
 
-						if inp[3] == 'y':
-							old_v = conf.get(id, 'eat')
-							conf.set(id, 'eat', 'y')
-							write_msg(event.peer_id, old_v + ' заменено на y')
+							if inp[3] == 'y':
+								old_v = conf.get(id, 'eat')
+								conf.set(id, 'eat', 'y')
+								write_msg(event.peer_id, old_v + ' заменено на y')
 
-						if inp[3] == 'n':
-							old_v = conf.get(id, 'eat')
-							conf.set(id, 'eat', 'n')
-							write_msg(event.peer_id, old_v + ' заменено на n')
+							if inp[3] == 'n':
+								old_v = conf.get(id, 'eat')
+								conf.set(id, 'eat', 'n')
+								write_msg(event.peer_id, old_v + ' заменено на n')
+						except:
+							write_msg(event.peer_id, 'Не а')
 
 					conf.write(conf_file)
 					conf_file.close()
